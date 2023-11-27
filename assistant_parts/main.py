@@ -25,7 +25,7 @@ paste_messages(chat_id)
 
 part_1 = st.text_input('Part number 1: ', placeholder='12421S')
 part_2 = st.text_input('Part number 2: ', placeholder='12421S')
-optional = st.text_input('Other message: ', placeholder='I need only prices')
+optional = st.text_input('Other message: ', placeholder='Thank You')
 if st.button('Request'):
     if chat_id == 'Create new':
         chat_id = ''
