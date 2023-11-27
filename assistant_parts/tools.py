@@ -2,7 +2,6 @@ import os
 import json
 import requests
 from serpapi import GoogleSearch
-import json
 import time
 from openai import OpenAI
 
