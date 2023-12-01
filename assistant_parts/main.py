@@ -25,12 +25,12 @@ paste_messages(chat_id)
 
 part_1 = st.text_input('Part number 1: ', placeholder='12421S')
 part_2 = st.text_input('Part number 2: ', placeholder='12421S')
-optional = st.text_input('Other message: ', placeholder='I need only prices')
+optional = st.text_input('Other message: ', placeholder='I need images')
 if st.button('Request'):
     if chat_id == 'Create new':
         chat_id = ''
     try:
-        query = f"part nuber 1: {part_1} part nuber 2: {part_2}. I need images and similarity scores." if part_1 and part_2 else ''
+        query = f"part nuber 1: {part_1} part nuber 2: {part_2}. Find all information that you can" if part_1 and part_2 else ''
         query += optional
         id, messages = handle(query, chat_id)
 

@@ -75,7 +75,7 @@ def get_similarity(url1, url2):
         print(body)
 get_similarity_json = {
     "name": "get_similarity",
-    "description": "Get similarity score of 2 images from urls. Score is a float number between 0 and 1.",
+    "description": "Get similarity score of 2 images from their urls. Score is a float number between 0 and 1.",
     "parameters": {
         "type": "object",
         "properties": {
