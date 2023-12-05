@@ -1,18 +1,30 @@
 import os
 import json
 import requests
-from serpapi import GoogleSearch
 import time
+import streamlit as st
+from serpapi import GoogleSearch
 from openai import OpenAI
 
-ASSISTANT_ID = 'asst_Uqqdh4SU7KUxEhA9TZteDAiK'
+
+ASSISTANT_ID_WEB = 'asst_Uqqdh4SU7KUxEhA9TZteDAiK'
+ASSISTANT_ID_LOCAL = 'asst_UGvKGlx6afhbkbAxbh7MRxZ7'
+
 
 client = OpenAI()
-assistant = client.beta.assistants.retrieve(ASSISTANT_ID)
-
-
 SERPAPI_API_KEY = os.environ['SERPAPI_API_KEY']
 
+def paste_messages(chat):
+    print('-----line 18: paste messages------')####################################################
+    if chat:
+        last_chat = st.session_state['chats'][chat]['msg']
+        for message in last_chat:
+            try:
+                role, msg = list(message.items())[0]
+                st.write(f'<p><span style="color:gray">{role}:</span> {msg}</p>', unsafe_allow_html=True)
+            except:
+                print(message)
+                st.write(f'<p>Error :( <br> try to reopen the page</p>', unsafe_allow_html=True)
 
 def google_search(query):
     print('Google search:', query)
@@ -89,20 +101,24 @@ get_similarity_json = {
 ############################################### Work with Assistant
 
 def wait_on_run(run, thread):
+    time0 = time.time()
     while run.status == "queued" or run.status == "in_progress":
         run = client.beta.threads.runs.retrieve(
             thread_id=thread.id,
             run_id=run.id,
         )
+        if time.time() - time0 > 120:
+            raise Exception('Request time out')
         time.sleep(0.3)
     return run
 
 
 
-def run_thread(thread):
+def run_thread(thread, web = True):
+    print('-----line 118: web: ------' + str(web))####################################################
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
-        assistant_id = ASSISTANT_ID
+        assistant_id = ASSISTANT_ID_WEB if web else ASSISTANT_ID_LOCAL
     )
     run = wait_on_run(run, thread)
     while run.status == 'requires_action':
@@ -139,7 +155,8 @@ def run_thread(thread):
         run = wait_on_run(run, thread)
 
         
-def handle(query: str, id: str = '') -> tuple:
+def handle(query: str, id: str = '', web: bool = True) -> tuple:
+    print('-----line158: handle------ web: '+str(web))####################################################
     if id == '':
         thread = client.beta.threads.create()
         id = thread.id
@@ -155,7 +172,11 @@ def handle(query: str, id: str = '') -> tuple:
         role = "user",
         content = query
     )
-    run_thread(thread)
+    try:
+        run_thread(thread, web = web)
+    except Exception as e:
+        print(e)
+        return id, ['System error', e]
     messages = client.beta.threads.messages.list(
         thread_id=thread.id
     ).data
